@@ -1,5 +1,7 @@
 <?php
 
+require './Scrapt.php';
+
 function scrape_delicious()
 {
 	$scraper = new Scraper;
