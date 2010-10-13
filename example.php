@@ -32,5 +32,5 @@ function scrape_delicious()
 	return $marks;
 }
 
-$links = scrap_delicious();
+$links = scrape_delicious();
 print_r($links);
