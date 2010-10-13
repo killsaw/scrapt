@@ -51,7 +51,7 @@ class Scrapt_Webpage
 
 	public static function fromData($data, $url=null)
 	{
-		$page = new Webpage;
+		$page = new Scrapt_Webpage;
 		$page->setURL($url);
 		$page->setData($data);
 		return $page;

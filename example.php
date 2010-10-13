@@ -4,7 +4,7 @@ require './Scrapt.php';
 
 function scrape_delicious()
 {
-	$scraper = new Scraper;
+	$scraper = new Scrapt;
 	$scraper->setURL('http://www.delicious.com/');
 	$data = $scraper->cache();
 	$page = $scraper->getPage();

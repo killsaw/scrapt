@@ -3,7 +3,7 @@
 require_once __DIR__.'/Scrapt/Webpage.php';
 require_once __DIR__.'/vendor/simple_html_dom.php';
 
-class Scraper
+class Scrapt
 {
 	protected $url;
 	protected $cacheDuration = 600; // 10 minutes.
