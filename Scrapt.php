@@ -18,16 +18,21 @@ class Scrapt
 		$this->url = $url;
 	}
 	
+	public function setCacheDuration($duration)
+	{
+		$this->cacheDuration = intval($duration);
+	}
+	
 	public function cache()
 	{
-		$cache_name = sprintf("%s/cache/%s.cache.html", __DIR__, md5($this->url));
+		$cache_path = sprintf("%s/cache/%s.cache.html", 
+						__DIR__, md5($this->url));
 		
-		if (file_exists($cache_name) && !$this->cacheIsOld($cache_name)) {
-			$this->data = file_get_contents($cache_name);
-		} else {
+		if (!file_exists($cache_path) || $this->cacheIsOld($cache_path)) {
 			$this->data = file_get_contents($this->url);
-			file_put_contents($cache_name, $this->data);
+			file_put_contents($cache_path, $this->data);
 		}
+		$this->data = file_get_contents($cache_path);
 		return $this->data;
 	}
 	
