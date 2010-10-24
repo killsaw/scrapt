@@ -57,7 +57,8 @@ function dump_html_tree($node, $show_attr=true, $deep=0) {
             echo "[$k]=>\"".$node->$k.'", ';
         echo ')';
     }
-    echo "\n";
+    echo "
+";
 
     foreach($node->nodes as $c)
         dump_html_tree($c, $show_attr, $deep+1);
@@ -295,7 +296,7 @@ class simple_html_dom_node {
 
         // return nth-element or array
         if (is_null($idx)) return $found;
-		else if ($idx<0) $idx = count($found) + $idx;
+      else if ($idx<0) $idx = count($found) + $idx;
         return (isset($found[$idx])) ? $found[$idx] : null;
     }
 
@@ -490,9 +491,11 @@ class simple_html_dom {
     protected $cursor;
     protected $parent;
     protected $noise = array();
-    protected $token_blank = " \t\r\n";
+    protected $token_blank = " 	\r
+";
     protected $token_equal = ' =/>';
-    protected $token_slash = " />\r\n\t";
+    protected $token_slash = " />\r
+	";
     protected $token_attr = ' >';
     // use isset instead of in_array, performance boost about 30%...
     protected $self_closing_tags = array('img'=>1, 'br'=>1, 'input'=>1, 'meta'=>1, 'link'=>1, 'hr'=>1, 'base'=>1, 'embed'=>1, 'spacer'=>1);

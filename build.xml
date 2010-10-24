@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	Scrapt build file.
+-->
+
+<project name="Scrapt" default="build" basedir=".">
+	
+	<taskdef classname="tasks.ext.assets.Assets" name="assets" />
+	<taskdef classname="tasks.ext.FileSyncTask" name="filesync" />
+	
+	
+    <property file="build.properties" />
+	<property name="package"   value="${phing.project.name}" override="true" />
+    <property name="version"   value="0.0.3" />
+    <property name="stability" value="alpha" />
+
+    <property name="dir.tests" value="./tests/" />
+    <property name="dir.build" value="./build/" override="true" />
+    <property name="dir.dist"  value="./dist/" override="true" />
+    <property name="dir.src"   value="${project.basedir}" override="true" />
+    <tstamp>
+	   <format property="check.date.time" pattern="%Y%m%d-%H%M%S" locale="en_US"/>
+    </tstamp>
+	
+	<!-- Find our source code files -->
+	<fileset dir="${dir.src}" id="php_files">
+		<include name="*.php"/>
+		<include name="**/**/**.php"/>
+		<exclude name="vendor/**"/>
+		<exclude name="build/**"/>
+		<exclude name="examples/**"/>
+	</fileset>
+    
+    <target name="codesniffer-report" description="CodeSniffer">
+		<echo msg="Running CodeSniffer..." />
+ 		<phpcodesniffer
+            standard="PEAR"
+            allowedFileExtensions="php js css">
+            <fileset refid="php_files" />
+        </phpcodesniffer>
+    </target>
+
+    <target name="phpmd-report" description="Mess Detector">
+		<echo msg="Running MessDetector..." />
+    	<phpmd allowedFileExtensions="php" ignorePatterns="*Test.php">
+            <fileset refid="php_files" />
+    	</phpmd>
+    </target>
+
+    <target name="phpcpd-report" description="Copy-paste Detector">
+		<echo msg="Running Copy-Paste Detector..." />
+    	<phpcpd format="default">
+            <fileset refid="php_files" />
+    	</phpcpd>
+	</target>
+	
+    <target name="phplint-report" description="PHP Lint Report">
+		<phplint>
+		    <fileset refid="php_files" />
+    	</phplint>
+    </target>
+
+    <target name="phpdepend-report" description="PHPDepend Report">
+		<echo msg="Running PHPDepend..." />
+    	<phpdepend allowedFileExtensions="php" >
+            <fileset refid="php_files" />
+            <logger type="phpunit-xml" outfile="reports/metrics.xml"/>
+    	</phpdepend>
+	</target>
+
+    <target name="test-report" description="Run test suite.">
+        <echo msg="Executing unit tests..." />
+        <mkdir dir="./reports" />
+        <mkdir dir="coverage"/>
+		<coverage-setup database="coverage/coverage.db">
+			<fileset refid="php_files"/>
+		</coverage-setup>
+		
+		<coverage-report outfile="coverage/coverage.xml">
+			<report todir="coverage"/>
+		</coverage-report>
+
+        <phpunit codecoverage="true" printsummary="true" haltonfailure="true" haltonerror="true">
+            <!--formatter type="plain" usefile="true" todir="reports" outfile="tests.txt" /-->
+            <formatter type="plain" usefile="false" />
+            <batchtest>
+                <fileset dir="tests">
+                    <include name="tests/*Test*.php"/>
+                </fileset>
+            </batchtest>
+        </phpunit>
+    </target>
+    
+	<target name="text-cleanup" description="Small routine to fix EOL and tabs.">
+		<reflexive>
+			<fileset refid="php_files"/>
+			<filterchain>
+				<replaceregexp>
+					<regexp pattern="\r\n" replace="\n"/>
+					<regexp pattern="\t" replace="    "/>
+				</replaceregexp>
+			</filterchain>
+		</reflexive>
+	</target>
+    
+    <target name="generate-docs" description="Build phpDoc documentation">
+    	<mkdir dir="${dir.build}/docs" />
+    	<phpdoc target="${dir.build}/docs" output="HTML:Smarty:PHP">
+            <fileset refid="php_files" />
+    	</phpdoc>
+    </target>
+    
+    <!-- Frontend targets -->
+    <target name="analyze" depends="text-cleanup, codesniffer-report, phpmd-report, 
+				phpcpd-report, phplint-report, phpdepend-report, test-report"
+				description="Runs all code reports.">
+    </target>
+    
+    <target name="deploy" description="Deploy the application to production">
+		<echo msg="Deploying app."/>
+		<FileSync sourceDir="${dir.src}" 
+				  destinationDir="steven@killsaw.com:~/test" remoteUser="steven" remotePass="0topQ3"
+				  remoteHost="killsaw.com" verbose="true">
+		</FileSync>
+    </target>
+    
+    <target name="clean">
+        <delete dir="${dir.build}" includeemptydirs="true" verbose="true" failonerror="true" />
+        <delete dir="${dir.dist}" includeemptydirs="true" verbose="true" failonerror="true" />
+        <delete>
+        	<fileset dir="cache/">
+        		<include name="*.html"/>
+        	</fileset>
+        </delete>
+    </target>
+    
+    <target name="release" depends="build">
+    	<tar destfile="scrapt-${version}.tar.bz2" compression="bzip2">
+		 <fileset dir="${dir.build}">
+			 <include name="**/**" />
+		 </fileset>
+		</tar>
+		
+		<zip destfile="scrapt-${version}.zip">
+		 <fileset dir="${dir.build}">
+			 <include name="**/**" />
+		 </fileset>
+		</zip>
+    </target>
+
+	<target name="assets">
+	   <phploc reportType="txt" reportName="${check.date.time}-report" 
+              reportDirectory="phploc-reports" countTests="true">
+			<fileset dir=".">
+			  <include name="**/*.php" />
+			  <include name="*.php" />
+			</fileset>
+		</phploc>		
+	</target>
+    
+    <target name="build" depends="text-cleanup, analyze">
+    	<touch file="README.md"/>
+        <echo msg="Copying files to build directory..." />        
+        <mkdir dir="${dir.build}" />
+        <copy todir="${dir.build}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${dir.src}">
+                <include name="**" />
+                <exclude name="config.local.php" />
+                <exclude name=".git*" />
+            </fileset>
+            <filterchain>
+                <replacetokens begintoken="@@" endtoken="@@">
+                    <token key="VERSION" value="${version}" />
+                </replacetokens>
+            </filterchain>
+        </copy>
+    	
+    	<manifest checksum="md5" salt="Scrapt" file="Manifest">
+            <fileset refid="php_files" />
+		</manifest>
+    </target>
+
+</project>
