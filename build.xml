@@ -120,7 +120,7 @@
     <target name="deploy" description="Deploy the application to production">
 		<echo msg="Deploying app."/>
 		<FileSync sourceDir="${dir.src}" 
-				  destinationDir="steven@killsaw.com:~/test" remoteUser="steven" remotePass="0topQ3"
+				  destinationDir="steven@killsaw.com:" remoteUser="" remotePass=""
 				  remoteHost="killsaw.com" verbose="true">
 		</FileSync>
     </target>
