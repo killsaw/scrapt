@@ -120,8 +120,9 @@
     <target name="deploy" description="Deploy the application to production">
 		<echo msg="Deploying app."/>
 		<FileSync sourceDir="${dir.src}" 
-				  destinationDir="steven@killsaw.com:" remoteUser="" remotePass=""
-				  remoteHost="killsaw.com" verbose="true">
+				  destinationDir="${deploy.user}@${deploy.host}:${deploy.path}" 
+				  remoteUser="${deploy.user}" remotePass="${deploy.pass}" 
+				  remoteHost="${deploy.host}" verbose="true">
 		</FileSync>
     </target>
     
@@ -136,13 +137,13 @@
     </target>
     
     <target name="release" depends="build">
-    	<tar destfile="scrapt-${version}.tar.bz2" compression="bzip2">
+    	<tar destfile="${package}-${version}.tar.bz2" compression="bzip2">
 		 <fileset dir="${dir.build}">
 			 <include name="**/**" />
 		 </fileset>
 		</tar>
 		
-		<zip destfile="scrapt-${version}.zip">
+		<zip destfile="${package}-${version}.zip">
 		 <fileset dir="${dir.build}">
 			 <include name="**/**" />
 		 </fileset>
