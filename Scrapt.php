@@ -87,8 +87,6 @@ class Scrapt
     
     static public function resolveURL($base_url, $url)
     {
-    	echo "BASE: $base_url\nURL: $url\n";
-    	
     	if (preg_match('/^http[s]?:\/\//i', $url)) {
     		return $url;
     	}
@@ -105,7 +103,6 @@ class Scrapt
 			$full_path .= join('/', array_slice($base_path, 0, -1));
 			$full_path .= $url;
 		}
-		echo "Full path: $full_path\n\n";
 		
 		return $full_path;
     }
