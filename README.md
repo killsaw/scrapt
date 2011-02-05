@@ -17,13 +17,6 @@ The Anatomy of a Scraping Job
 # Vigilence. If the page is updated and the scraper no longer works, stop and send out an alert.
 # Updates. Re-scrape, and save only new data.
 
-Finding the good data. The easiest method of scraping data from a given page
-is 
-
-
-Idea: Proxy a connection through it and have it record everything into 
-      executable code. 
-
 
 Design Goals
 ------------
@@ -49,20 +42,13 @@ Use Cases
 - A bank of nodes scraping yellowpages.com, clicking through proxies to avoid
   the banhammer. No page is pulled twice. Nodes know how much traffic has gone
   through a given proxy and can form sessions which look legitimate.
-- An Amazon scraper that does a fixed search at some interval, monitoring price
+- An Overstock.com scraper that does a fixed search at some interval, monitoring price
   changes.
 - A client for Bank of America that allows quick queries on the command-line.
-  (Apparently very difficult)
-- A security scanner that bruteforces a page login. Hotmail, for example, and
-  detects when it starts asking for a Captcha.
+  (Apparently pretty difficult)
 - A diff bot, which can track changes to a page over time.
 - An contact finder, which can crawl an entire site looking for email, phone, 
   or address information.
 - A "Scraping Template", which can be customized to scrape certain types of data.
   For example, a record on a view page with many key-value pairs, or a listing on
-  a site like Google. 
-- 
-
-
-
-
+  a site like Google.
