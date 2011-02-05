@@ -1,4 +1,5 @@
 .* # Ignore all dotfiles...
 !.gitignore # except for .gitignore
+.DS_Store
 reports/**
 *.phar
