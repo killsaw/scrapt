@@ -3,6 +3,8 @@
 class Scrapt_Webpage
 {
     protected $data;
+    protected $headers;
+    protected $info;
     protected $url;
     protected $dom;
     
@@ -15,6 +17,11 @@ class Scrapt_Webpage
     {
         return preg_replace('/(\s+)+/', '\\1', 
                  strip_tags($this->data));
+    }
+
+    public function toString()
+    {
+    	return $this->data;
     }
     
     public function contains($string, $case_sensitive=false)
@@ -51,10 +58,18 @@ class Scrapt_Webpage
     	return $forms;
     }
     
-    public function getForm($name)
+    public function getForm($name=null)
     {
     	$forms = $this->getForms();
     	
+    	if (count($forms) < 1) {
+    		return false;
+    	}
+    	
+    	if (is_null($name)) {
+    		return $forms[0];
+    	}
+
     	foreach($forms as $f) {
     		if ($f->getName() == $name) {
     			return $f;
@@ -104,14 +119,40 @@ class Scrapt_Webpage
         return $this->data;
     }
     
+    public function setHeaders($headers)
+    {
+    	$this->headers = (array)$headers;
+    }
+
+    public function setInfo($info)
+    {
+    	$this->info = $info;
+    }
+    
     public function getURL()
     {
         return $this->url;
     }
     
+    public function fixHTML()
+    {
+    	$doc = new DOMDocument;
+		libxml_use_internal_errors(TRUE);
+		$doc->loadHTML($this->data);
+		libxml_use_internal_errors(FALSE);
+		$doc->formatOutput = TRUE;
+		$this->data = $doc->saveHTML();
+		unset($doc);
+    }
+    
     public function __destruct()
     {
         $this->dom->clear();
+    }
+    
+    public function __toString()
+    {
+    	return $this->toString();
     }
     
     public static function fromURL($url)
@@ -123,7 +164,10 @@ class Scrapt_Webpage
     public static function fromData($data, $url=null)
     {
         $page = new Scrapt_Webpage($url);
-        $page->setData($data);
+        $page->setData($data['data']);
+        $page->setHeaders($data['headers']);
+        $page->setInfo($data['info']);
+        
         return $page;
     }
 }

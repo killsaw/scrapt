@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__.'/Scrapt/Webpage.php';
+require_once __DIR__.'/Scrapt/Cookie.php';
+require_once __DIR__.'/Scrapt/CookieJar.php';
 require_once __DIR__.'/Scrapt/Agent.php';
 require_once __DIR__.'/Scrapt/Agent/cURL.php';
 require_once __DIR__.'/Scrapt/Agent/Basic.php';
@@ -34,7 +36,7 @@ class Scrapt
         self::$cacheDuration = intval($duration);
     }
     
-    static public function cacheURL($url)
+    static public function cacheURL($url, $params=array())
     {
         $cache_path = sprintf("%s/cache/%s.cache.html", 
                         __DIR__, md5($url));
@@ -69,7 +71,23 @@ class Scrapt
         return $pages;
     }
     
-    static public function get($url, $params=array(), $cache=true)
+    static public function get($url, $params=array(), $cache=false)
+    {
+		if (!isset(self::$agent)) {
+			self::setAgent(new Scrapt_Agent_cURL);
+		}
+		
+		self::validateURL($url);
+		
+    	if ($cache) {
+    		$data = self::cacheURL($url, $params);
+    	} else {
+    		$data = self::$agent->get($url, $params);
+    	}
+        return Scrapt_Webpage::fromData($data, $url);
+    }
+
+    static public function post($url, $params=array(), $cache=false)
     {
 		if (!isset(self::$agent)) {
 			self::setAgent(new Scrapt_Agent_cURL);
@@ -80,7 +98,7 @@ class Scrapt
     	if ($cache) {
     		$data = self::cacheURL($url);
     	} else {
-    		$data = self::$agent->get($url);
+    		$data = self::$agent->post($url, $params);
     	}
         return Scrapt_Webpage::fromData($data, $url);
     }
@@ -115,9 +133,12 @@ class Scrapt
 
     	$action = Scrapt::resolveURL($form->getPageURL(), $action);    	
 		self::validateURL($action);
-
-
+		
     	$data = self::$agent->request($method, $action, $payload);
+    	
+    	print_r($data);
+    	exit;
+    	
         return Scrapt_Webpage::fromData($data['data'], $action);
     }
 }

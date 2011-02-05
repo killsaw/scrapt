@@ -18,12 +18,12 @@ class Scrapt_Component_Form
 
     public function setAction($action)
     {
-        $this->action = $action;
+        $this->action = html_entity_decode($action);
     }
     
     public function getMethod()
     {
-    	return $this->method;
+    	return strtolower($this->method);
     }
     
     public function getAction()

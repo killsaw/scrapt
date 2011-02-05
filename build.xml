@@ -6,9 +6,7 @@
 
 <project name="Scrapt" default="build" basedir=".">
 	
-	<taskdef classname="tasks.ext.assets.Assets" name="assets" />
 	<taskdef classname="tasks.ext.FileSyncTask" name="filesync" />
-	
 	
     <property file="build.properties" />
 	<property name="package"   value="${phing.project.name}" override="true" />
@@ -18,7 +16,7 @@
     <property name="dir.tests" value="./tests/" />
     <property name="dir.build" value="./build/" override="true" />
     <property name="dir.dist"  value="./dist/" override="true" />
-    <property name="dir.src"   value="${project.basedir}" override="true" />
+    <property name="dir.src"   value="./src/" override="true" />
     <tstamp>
 	   <format property="check.date.time" pattern="%Y%m%d-%H%M%S" locale="en_US"/>
     </tstamp>
@@ -26,10 +24,8 @@
 	<!-- Find our source code files -->
 	<fileset dir="${dir.src}" id="php_files">
 		<include name="*.php"/>
-		<include name="**/**/**.php"/>
+		<include name="*/**.php"/>
 		<exclude name="vendor/**"/>
-		<exclude name="build/**"/>
-		<exclude name="examples/**"/>
 	</fileset>
     
     <target name="codesniffer-report" description="CodeSniffer">
@@ -65,28 +61,30 @@
 		<echo msg="Running PHPDepend..." />
     	<phpdepend allowedFileExtensions="php" >
             <fileset refid="php_files" />
-            <logger type="phpunit-xml" outfile="reports/metrics.xml"/>
+            <logger type="phpunit-xml" outfile="./output/reports/metrics.xml"/>
     	</phpdepend>
 	</target>
 
     <target name="test-report" description="Run test suite.">
         <echo msg="Executing unit tests..." />
-        <mkdir dir="./reports" />
-        <mkdir dir="coverage"/>
-		<coverage-setup database="coverage/coverage.db">
+        <mkdir dir="./output" />
+        <mkdir dir="./output/reports" />
+        <mkdir dir="./output/coverage"/>
+        
+		<coverage-setup database="./output/coverage/coverage.db">
 			<fileset refid="php_files"/>
 		</coverage-setup>
 		
-		<coverage-report outfile="coverage/coverage.xml">
-			<report todir="coverage"/>
+		<coverage-report outfile="./output/coverage/coverage.xml">
+			<report todir="./output/coverage"/>
 		</coverage-report>
 
         <phpunit codecoverage="true" printsummary="true" haltonfailure="true" haltonerror="true">
             <!--formatter type="plain" usefile="true" todir="reports" outfile="tests.txt" /-->
             <formatter type="plain" usefile="false" />
             <batchtest>
-                <fileset dir="tests">
-                    <include name="tests/*Test*.php"/>
+                <fileset dir="./tests">
+                    <include name="./tests/*Test*.php"/>
                 </fileset>
             </batchtest>
         </phpunit>
@@ -117,15 +115,6 @@
 				description="Runs all code reports.">
     </target>
     
-    <target name="deploy" description="Deploy the application to production">
-		<echo msg="Deploying app."/>
-		<FileSync sourceDir="${dir.src}" 
-				  destinationDir="${deploy.user}@${deploy.host}:${deploy.path}" 
-				  remoteUser="${deploy.user}" remotePass="${deploy.pass}" 
-				  remoteHost="${deploy.host}" verbose="true">
-		</FileSync>
-    </target>
-    
     <target name="clean">
         <delete dir="${dir.build}" includeemptydirs="true" verbose="true" failonerror="true" />
         <delete dir="${dir.dist}" includeemptydirs="true" verbose="true" failonerror="true" />
@@ -149,27 +138,13 @@
 		 </fileset>
 		</zip>
     </target>
-
-	<target name="assets">
-	   <phploc reportType="txt" reportName="${check.date.time}-report" 
-              reportDirectory="phploc-reports" countTests="true">
-			<fileset dir=".">
-			  <include name="**/*.php" />
-			  <include name="*.php" />
-			</fileset>
-		</phploc>		
-	</target>
     
-    <target name="build" depends="text-cleanup, analyze">
+    <target name="build" depends="clean, text-cleanup, analyze">
     	<touch file="README.md"/>
         <echo msg="Copying files to build directory..." />        
         <mkdir dir="${dir.build}" />
         <copy todir="${dir.build}" overwrite="true" includeemptydirs="true">
-            <fileset dir="${dir.src}">
-                <include name="**" />
-                <exclude name="config.local.php" />
-                <exclude name=".git*" />
-            </fileset>
+            <fileset refid="php_files" />
             <filterchain>
                 <replacetokens begintoken="@@" endtoken="@@">
                     <token key="VERSION" value="${version}" />
@@ -177,7 +152,7 @@
             </filterchain>
         </copy>
     	
-    	<manifest checksum="md5" salt="Scrapt" file="Manifest">
+    	<manifest checksum="md5" salt="Scrapt" file="${dir.build}/Manifest">
             <fileset refid="php_files" />
 		</manifest>
     </target>

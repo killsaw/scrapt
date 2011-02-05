@@ -9,10 +9,33 @@ abstract class Scrapt_Agent
     protected $followLocation = true;
     protected $cookieFile = '/tmp/cookies.txt';
     protected $maxRedirects = 10;
-    protected $timeOut = 60;
+    protected $timeOut = 10;
 
     const METHOD_POST = 'post',
           METHOD_GET  = 'get';
+    
+    public function __construct()
+    {
+    	if (!empty($this->cookieFile)) {
+    		$this->setCookieFile($this->cookieFile);
+    	}
+    }
+    
+    public function setCookieFile($cookie_file)
+    {
+    	$this->cookieFile = $cookie_file;
+		Scrapt_CookieJar::setCookieFile($cookie_file);
+    }
+    
+    public function setCookie($name, $value)
+    {
+    	$this->cookies[$name] = $value;
+    }
+    
+    public function setReferer($referer)
+    {
+    	$this->referer = $referer;
+    }
     
     public function get($url, array $params=array())
     {
