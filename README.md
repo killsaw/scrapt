@@ -8,14 +8,14 @@ A PHP library for making webscraping a bit easier.
 The Anatomy of a Scraping Job
 ------------------------------
 
-# Network. HTTP client that does everything a browser would, sans-javascript. Optionally, use proxies for longer jobs.
-# Crawling. Pull data from a collection of relevant pages on a given site.
-# Scraping. Find a path or pattern of data to extract from the given page.
-# Validation. Ensure what you've extracted is valid data and not misgrabbed.
-# Transform. Combine, filter, or otherwise munge the data until it is ready for storage.
-# Persistence. Save the data in a queryable data store. Most often a relational database.
-# Vigilence. If the page is updated and the scraper no longer works, stop and send out an alert.
-# Updates. Re-scrape, and save only new data.
+- Network. HTTP client that does everything a browser would, sans-javascript. Optionally, use proxies for longer jobs.
+- Crawling. Pull data from a collection of relevant pages on a given site.
+- Scraping. Find a path or pattern of data to extract from the given page.
+- Validation. Ensure what you've extracted is valid data and not misgrabbed.
+- Transform. Combine, filter, or otherwise munge the data until it is ready for storage.
+- Persistence. Save the data in a queryable data store. Most often a relational database.
+- Vigilence. If the page is updated and the scraper no longer works, stop and send out an alert.
+- Updates. Re-scrape, and save only new data.
 
 
 Design Goals
@@ -47,7 +47,7 @@ Use Cases
 - A client for Bank of America that allows quick queries on the command-line.
   (Apparently pretty difficult)
 - A diff bot, which can track changes to a page over time.
-- An contact finder, which can crawl an entire site looking for email, phone, 
+- A contact finder, which can crawl an entire site looking for email, phone, 
   or address information.
 - A "Scraping Template", which can be customized to scrape certain types of data.
   For example, a record on a view page with many key-value pairs, or a listing on
