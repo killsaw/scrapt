@@ -17,6 +17,21 @@ The Anatomy of a Scraping Job
 - Vigilence. If the page is updated and the scraper no longer works, stop and send out an alert.
 - Updates. Re-scrape, and save only new data.
 
+Example Scraper
+---------------
+
+	$page = Scrapt::get('https://somepbxcompany.com/');
+	if ($page->contains('Please log in to access this page')) {
+		$form = $page->getForm();
+		$form->uemail = PBX_PORTAL_USERNAME; // is url encoded
+		$form->pwd=PBX_PORTAL_PASSWORD;
+		$page = Scrapt::submit($form);
+	}
+	$report_url = 'https://somepbxcompany.com/report.php';
+	$report_vars = array(
+		'date'=>'2011-02-01'
+	);
+	$page = Scrapt::get($report_url, $report_vars);
 
 Design Goals
 ------------
